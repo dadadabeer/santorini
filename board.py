@@ -1,5 +1,3 @@
-"""5 by 5 board for the game of Santorini and its components."""
-
 class Cell:
     """Cell of a board for Santorini game."""
     def __init__(self, row, col):
@@ -58,11 +56,3 @@ class Board:
             representation += '\n'
             representation += '+--+--+--+--+--+\n'
         return representation
-    
-
-
-test = Board()
-print(test)
-test.get_cell(0, 0).increase_height()
-test.get_cell(0, 0).increase_height()
-print(test)
