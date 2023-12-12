@@ -1,4 +1,4 @@
-from strategy import HumanStrategy
+from strategy import HumanStrategy, Context
 
 DIRECTIONS = {
     'n': (-1, 0),
@@ -74,6 +74,15 @@ class Worker:
             return False
         return True
     
+    def valid_moves(self):
+        all_directions = DIRECTIONS.keys()
+        valid_moves = []
+        for dir in all_directions:
+            if self.validate_move(dir):
+                valid_moves.append(dir)
+        return valid_moves
+
+    
     def __str__(self):
         """Return the string representation of the worker."""
         return self._alpha
@@ -94,7 +103,7 @@ class Player:
 
     def player_move(self, game):
         """Determined by the game state and the strategy."""
-        move_and_build_request = HumanStrategy(self._board, self._workers).player_makes_move()
+        move_and_build_request = Context(HumanStrategy(self._board, self._workers)).context_interface()
         move_and_build_request.move()
         move_and_build_request.build()
         game.increment_turn_counter()

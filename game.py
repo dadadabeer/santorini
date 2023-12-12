@@ -17,6 +17,7 @@ class Game:
         self._players = players
         self._turn_counter = 1
         self._cur_player = self._players[0]
+        self.winner = None
     
     @property
     def turn_counter(self):
@@ -33,23 +34,14 @@ class Game:
 
     def game_state_end_check(self):
         # make a getter for workers later
-        fs_worker, snd_worker = self._cur_player._workers
-        if fs_worker.cell.height == 3 or snd_worker.cell.height == 3:
-            return True
-        all_directions = DIRECTIONS.keys()
-        valid_moves = False
-        for worker in (fs_worker, snd_worker):
-            for dir in all_directions:
-                if worker.validate_move(dir):
-                    valid_moves = True
-                    break
-                else:
-                    continue
-            if valid_moves:
-                break
-        if not valid_moves:
-            self.change_player()
-            return True
+        for player in self._players:
+            fs_worker, snd_worker = player._workers
+            if fs_worker.cell.height == 3 or snd_worker.cell.height == 3:
+                self.winner = fs_worker.colour
+                return True
+            if fs_worker.valid_moves() == [] and fs_worker.valid_moves == []:
+                self.winner = "white" if fs_worker.colour == "blue" else "white"
+                return True
         return False
     
     def __str__(self):

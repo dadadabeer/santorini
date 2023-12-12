@@ -1,5 +1,5 @@
 from board import Board
-
+import abc
 DIRECTIONS = {
     'n': (-1, 0),
     'ne': (-1, 1),
@@ -11,13 +11,41 @@ DIRECTIONS = {
     'w': (0, -1)
 }
 
-class HumanStrategy:
-    "Strategy for a human player"
+class Context:
+    """
+    Defines the interface to the clients and maintins a refernce to the strategy object.
+    """
+    def __init__(self, strategy):
+        self._strategy = strategy
+
+    def context_interface(self):
+        return self._strategy.player_makes_move()
+
+    def set_strategy(self, strategy):
+        self._strategy = strategy
+        
+
+class Strategy(metaclass=abc.ABCMeta):
+    """
+    Declare an interface common to all supported algorithms. Context
+    uses this interface to call the algorithm defined by a
+    ConcreteStrategy.
+    """
     def __init__(self, board, workers):
         self._board = board
         self._workers = workers
         self._active_worker = None
 
+    @abc.abstractmethod
+    def player_makes_move(self):
+        pass
+
+
+
+class HumanStrategy(Strategy):
+    "Strategy for a human player"
+    def __init__(self, board, workers):
+        super().__init__(board, workers)
 
     def choose_worker(self):
         """Ask the user to choose one worker from the two."""
@@ -37,6 +65,9 @@ class HumanStrategy:
             self._active_worker = self._workers[0]
         else:
             self._active_worker = self._workers[1]
+        if self._active_worker.valid_moves() == []:
+                print("That worker cannot move")
+                self.choose_worker()
         return self._active_worker
 
 
