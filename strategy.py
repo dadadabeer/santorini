@@ -19,8 +19,8 @@ class Context:
     def __init__(self, strategy):
         self._strategy = strategy
 
-    def context_interface(self):
-        return self._strategy.generate_make_and_build()
+    def context_interface(self, game):
+        return self._strategy.generate_make_and_build(game)
 
     def set_strategy(self, strategy):
         self._strategy = strategy
@@ -38,7 +38,7 @@ class Strategy(metaclass=abc.ABCMeta):
         self._active_worker = None
 
     @abc.abstractmethod
-    def generate_make_and_build(self):
+    def generate_make_and_build(self, game):
         pass
 
 
@@ -98,7 +98,7 @@ class HumanStrategy(Strategy):
         return selected_build
 
 
-    def generate_make_and_build(self):
+    def generate_make_and_build(self, game):
         selected_worker = self.choose_worker()
         selected_move = self.choose_move_direction()
         selected_dir = self.choose_build_direction(selected_move)
@@ -142,7 +142,7 @@ class RandomStrategy(Strategy):
         return random_build
 
 
-    def generate_make_and_build(self):
+    def generate_make_and_build(self, game):
         random_worker = self.random_worker()
         random_move = self.random_move_direction()
         random_dir = self.random_build_direction(random_move)
@@ -152,20 +152,99 @@ class RandomStrategy(Strategy):
 class HeuristicStrategy(Strategy):
     def __init__(self, board, workers):
         super().__init__(board, workers)
+
+    def height_score_if_move(self, worker, dir):
+        other_worker = self._workers[0] if worker == self._workers[1] else self._workers[1]
+        delta_row, delta_col = DIRECTIONS.get(dir)
+        curr_row, curr_col = worker.cell.pos()[0], worker.cell.pos()[1]
+        landing_cell_row, landing_cell_col = delta_row + curr_row, delta_col + curr_col
+        landing_cell = self._board.get_cell(landing_cell_row, landing_cell_col)
+        return landing_cell.height + other_worker.cell.height
     
-    def heuristic_worker(self):
-        pass
+    def center_score_if_move(self, worker, dir):
+        delta_row, delta_col = DIRECTIONS.get(dir)
+        curr_row, curr_col = worker.cell.pos()[0], worker.cell.pos()[1]
+        landing_cell_row, landing_cell_col = delta_row + curr_row, delta_col + curr_col
+        center_score = 0
+        if landing_cell_row == 2 and landing_cell_col == 2:
+            center_score += 2
+        elif 1 <= landing_cell_row <= 3 and 1 <= landing_cell_col <= 3:
+            center_score += 1
 
-    def heuristic_move_direction(self):
-        pass
+        other_worker = self._workers[0] if worker == self._workers[1] else self._workers[1]
+        other_worker_row, other_worker_col = other_worker.cell.pos()[0], other_worker.cell.pos()[1]
+        if other_worker_row == 2 and other_worker_col == 2:
+            center_score += 2
+        elif 1 <= other_worker_row <= 3 and 1 <= other_worker_col <= 3:
+            center_score += 1
+    
+        return center_score
 
-    def heuristic_build_direction(self):
-        pass
+    def distance_score_if_move(self, worker, dir, game):
+        def chebyshev_distance(cell1, cell2):
+            row1, col1 = cell1.pos()
+            row2, col2 = cell2.pos()
+            return max(abs(row1 - row2), abs(col1 - col2))
+    
+        delta_row, delta_col = DIRECTIONS.get(dir)
+        curr_row, curr_col = worker.cell.pos()[0], worker.cell.pos()[1]
+        landing_cell_row, landing_cell_col = delta_row + curr_row, delta_col + curr_col
+        landing_cell = self._board.get_cell(landing_cell_row, landing_cell_col)
 
-    def generate_make_and_build(self):
-        pass
+        player1, player2 = game.players
 
+        worker_A_loc = player1.workers[0].cell
+        worker_B_loc = player1.workers[1].cell
+        worker_Y_loc = player2.workers[0].cell
+        worker_Z_loc = player2.workers[1].cell
 
+        if worker.alpha == "A":
+            worker_A_loc = landing_cell
+        elif worker.alpha == "B":
+            worker_B_loc = landing_cell
+        elif worker.alpha == "Y":
+            worker_Y_loc = landing_cell
+        elif worker.alpha == "Z":
+            worker_Z_loc = landing_cell
+
+        Z_to_A = chebyshev_distance(worker_Z_loc, worker_A_loc)
+        Y_to_A = chebyshev_distance(worker_Y_loc, worker_A_loc)
+        Z_to_B = chebyshev_distance(worker_Z_loc, worker_B_loc)
+        Y_to_B = chebyshev_distance(worker_Y_loc, worker_B_loc)
+
+        for_blue = min(Z_to_A, Y_to_A) + min(Z_to_B, Y_to_B)
+        for_white = min(Z_to_A, Z_to_B) + min(Y_to_A, Y_to_B)
+
+        if worker.colour == "white":
+            return 8 - for_white
+        return 8 - for_blue
+
+    def heuristic_move_direction(self, game):
+        c1, c2, c3 = 3, 2, 1
+        possible_moves = []
+        for worker in self._workers:
+            valid_moves = worker.valid_moves()
+            for dir in valid_moves:
+                move_score = c1 * self.height_score_if_move(worker, dir) + c2 * self.center_score_if_move(worker, dir) + c3 * self.distance_score_if_move(worker, dir, game)
+                possible_moves.append((move_score, worker, dir))
+        
+        possible_moves.sort(key=lambda x: x[0], reverse=True)
+        ties = []
+        for move in possible_moves:
+            if move[0] == possible_moves[0][0]:
+                ties.append(move)
+        self._active_worker = random.choice(ties)[1]
+        return random.choice(ties)[2]
+            
+
+    def heuristic_build_direction(self, heuristic_move):
+        random_build = random.choice(self._active_worker.valid_builds(heuristic_move))
+        return random_build
+
+    def generate_make_and_build(self, game):
+        heuristic_move = self.heuristic_move_direction(game)
+        heuristic_dir = self.heuristic_build_direction(heuristic_move)
+        return MoveandBuild(self._board, self._active_worker, heuristic_move, heuristic_dir)
 
 
 # COMMAND PATTERN

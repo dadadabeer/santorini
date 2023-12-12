@@ -20,6 +20,10 @@ class Game:
         self.winner = None
     
     @property
+    def players(self):
+        return self._players
+    
+    @property
     def turn_counter(self):
         return self._turn_counter
     
