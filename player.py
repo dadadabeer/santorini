@@ -1,3 +1,5 @@
+from strategy import HumanStrategy
+
 DIRECTIONS = {
     'n': (-1, 0),
     'ne': (-1, 1),
@@ -9,11 +11,13 @@ DIRECTIONS = {
     'w': (0, -1)
 }
 
+
+
 class Worker:
-    def __init__(self, alpha, color, cell, board):
+    def __init__(self, alpha, colour, cell, board):
         """Initialize a worker."""
         self._alpha = alpha
-        self._color = color
+        self.colour = colour
         self._cell = cell
         self._board = board
         self._cell.worker = self
@@ -36,7 +40,7 @@ class Worker:
     def validate_move(self, to):
         """Validate the move to the given cell."""
         delta_row, delta_col = DIRECTIONS[to]
-        new_row, new_col = self._cell.row + delta_row, self._cell.col + delta_col
+        new_row, new_col = self._cell._row + delta_row, self._cell._col + delta_col
         # Check if the new cell is on the board
         if not (0 <= new_row < 5 and 0 <= new_col < 5):
             return False
@@ -53,16 +57,18 @@ class Worker:
             return False
         return True
 
-    def validate_build(self, to):
-        """Validate the build to the given cell."""
-        delta_row, delta_col = DIRECTIONS[to]
-        new_row, new_col = self._cell.row + delta_row, self._cell.col + delta_col
+    def validate_build(self, moveto, buildto):
+        """Validate the build to the given cell (also depends on the move direction)."""
+        delta_row_move, delta_col_move = DIRECTIONS[moveto]
+        delta_row_build, delta_col_build = DIRECTIONS[buildto]
+        new_row, new_col = self._cell._row + delta_row_move + delta_row_build, self._cell._col + delta_col_move + delta_col_build
         # Check if the new cell is on the board
         if not (0 <= new_row < 5 and 0 <= new_col < 5):
             return False
         # Check if the new cell is occupied
         if self._board.get_cell(new_row, new_col).worker is not None:
-            return False
+            if (new_row, new_col) != self._cell.pos():
+                return False
         # Check if the new cell is too high
         if self._board.get_cell(new_row, new_col).height == 4:
             return False
@@ -86,6 +92,11 @@ class Player:
         elif self._colour ==  "blue":
             self._workers = Worker("Y", "blue", self._board.get_cell(1,1), self._board), Worker("Z", "blue", self._board.get_cell(3,3), self._board)
 
-    def players_move(self):
+    def player_move(self, game):
         """Determined by the game state and the strategy."""
-        pass
+        move_and_build_request = HumanStrategy(self._board, self._workers).player_makes_move()
+        move_and_build_request.move()
+        move_and_build_request.build()
+        game.increment_turn_counter()
+        game.change_player()
+        

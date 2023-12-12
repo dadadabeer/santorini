@@ -26,6 +26,9 @@ class Cell:
     def worker(self, worker):
         """Set the worker on the cell."""
         self._worker = worker
+
+    def pos(self):
+        return (self._row, self._col)
     
     def __str__(self):
         """String representation of the cell."""
