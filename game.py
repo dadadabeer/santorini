@@ -48,8 +48,9 @@ class Game:
                 return True
         return False
     
-    def __str__(self):
+    def current_game_state(self, withScores=False):
         letters = "AB" if self._cur_player._colour == "white" else "YZ"
-        details = "Turn: " + str(self._turn_counter) + ", " + self._cur_player._colour + " (" + letters + ")" + self._cur_player.display_score(self)
+        additional_details = "" if not withScores else self._cur_player.display_score(self)
+        details = "Turn: " + str(self._turn_counter) + ", " + self._cur_player._colour + " (" + letters + ")" + additional_details
         return str(self._board) + details
 

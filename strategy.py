@@ -261,8 +261,11 @@ class MoveandBuild:
     def move(self):
         """Moves the worker to a new position on the board."""
         currPos = self._active_worker.cell.pos()
+        print("current pos is", currPos)
         delta_row, delta_col = DIRECTIONS.get(self._move_direction)
+        print("wanting to move in", self._move_direction)
         newPos = delta_row + currPos[0], delta_col + currPos[1]
+        print("new pos is", newPos)
         self._active_worker.cell.worker = None
         self._move_cell = self._board.get_cell(newPos[0], newPos[1])
         self._move_cell.worker = self._active_worker
