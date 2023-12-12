@@ -1,5 +1,5 @@
 from board import Board
-from player import Player
+from player import Player, HumanPlayer, RandomPlayer, PlayerFactory
 from strategy import HumanStrategy
 from game import Game
 from sys import argv 
@@ -14,9 +14,11 @@ class Santorini:
         """Initialize the game."""
         self._board = Board()
         self._players = []
-        self._players.append(Player("white", self._board))
-        self._players.append(Player("blue", self._board))
+        self._players.append(PlayerFactory().create_player(white_type, "white", self._board))
+        self._players.append(PlayerFactory().create_player(blue_type, "blue", self._board))
         self._state = Game(self._board, self._players)
+        self._undo_redo = undo_redo
+        self._display = display
 
     def __call__(self):
         while not self._state.game_state_end_check():

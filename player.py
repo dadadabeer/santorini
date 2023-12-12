@@ -1,4 +1,4 @@
-from strategy import HumanStrategy, Context, RandomStrategy
+from strategy import HumanStrategy, Context, RandomStrategy, HeuristicStrategy
 
 DIRECTIONS = {
     'n': (-1, 0),
@@ -10,7 +10,6 @@ DIRECTIONS = {
     'e': (0, 1),
     'w': (0, -1)
 }
-
 
 
 class Worker:
@@ -103,7 +102,7 @@ class Player:
         self._colour = colour # either white or blue
         self._board = board
         self._workers  = None, None
-        #self._strategy = None
+        self._strategy_type = None
         if self._colour == "white":
             self._workers = Worker("A", "white", self._board.get_cell(3,1), self._board), Worker("B", "white", self._board.get_cell(1,3), self._board)
         elif self._colour ==  "blue":
@@ -111,9 +110,33 @@ class Player:
 
     def player_move(self, game):
         """Determined by the game state and the strategy."""
-        move_and_build_request = Context(RandomStrategy(self._board, self._workers)).context_interface()
+        move_and_build_request = self._strategy_type.context_interface()
         move_and_build_request.move()
         move_and_build_request.build()
         game.increment_turn_counter()
         game.change_player()
         
+class HumanPlayer(Player):
+    def __init__(self, colour, board):
+        super().__init__(colour, board)
+        self._strategy_type = Context(HumanStrategy(self._board, self._workers))
+
+class RandomPlayer(Player):
+    def __init__(self, colour, board):
+        super().__init__(colour, board)
+        self._strategy_type = Context(RandomStrategy(self._board, self._workers))
+
+class HeuristicPlayer(Player):
+    def __init__(self, colour, board):
+        super().__init__(colour, board)
+        self._strategy_type = Context(HeuristicStrategy(self._board, self._workers))
+
+
+class PlayerFactory():
+    def create_player(self, type_of, colour, board):
+        if type_of == "human":
+            return HumanPlayer(colour, board)
+        elif type_of == "random":
+            return RandomPlayer(colour, board)
+        elif type_of == "heuristic":
+            return HeuristicPlayer(colour, board)

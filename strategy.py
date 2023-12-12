@@ -148,6 +148,9 @@ class RandomStrategy(Strategy):
         random_dir = self.random_build_direction(random_move)
         return MoveandBuild(self._board,random_worker , random_move, random_dir)
 
+        
+class HeuristicStrategy(Strategy):
+    pass
 
 
 
