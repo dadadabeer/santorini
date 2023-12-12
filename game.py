@@ -50,6 +50,6 @@ class Game:
     
     def __str__(self):
         letters = "AB" if self._cur_player._colour == "white" else "YZ"
-        details = "Turn: " + str(self._turn_counter) + ", " + self._cur_player._colour + " (" + letters + ")"
+        details = "Turn: " + str(self._turn_counter) + ", " + self._cur_player._colour + " (" + letters + ")" + self._cur_player.display_score(self)
         return str(self._board) + details
 
