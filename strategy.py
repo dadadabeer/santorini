@@ -20,7 +20,7 @@ class Context:
         self._strategy = strategy
 
     def context_interface(self):
-        return self._strategy.player_makes_move()
+        return self._strategy.generate_make_and_build()
 
     def set_strategy(self, strategy):
         self._strategy = strategy
@@ -38,7 +38,7 @@ class Strategy(metaclass=abc.ABCMeta):
         self._active_worker = None
 
     @abc.abstractmethod
-    def player_makes_move(self):
+    def generate_make_and_build(self):
         pass
 
 
@@ -98,7 +98,7 @@ class HumanStrategy(Strategy):
         return selected_build
 
 
-    def player_makes_move(self):
+    def generate_make_and_build(self):
         selected_worker = self.choose_worker()
         selected_move = self.choose_move_direction()
         selected_dir = self.choose_build_direction(selected_move)
@@ -142,7 +142,7 @@ class RandomStrategy(Strategy):
         return random_build
 
 
-    def player_makes_move(self):
+    def generate_make_and_build(self):
         random_worker = self.random_worker()
         random_move = self.random_move_direction()
         random_dir = self.random_build_direction(random_move)
@@ -150,7 +150,21 @@ class RandomStrategy(Strategy):
 
         
 class HeuristicStrategy(Strategy):
-    pass
+    def __init__(self, board, workers):
+        super().__init__(board, workers)
+    
+    def heuristic_worker(self):
+        pass
+
+    def heuristic_move_direction(self):
+        pass
+
+    def heuristic_build_direction(self):
+        pass
+
+    def generate_make_and_build(self):
+        pass
+
 
 
 

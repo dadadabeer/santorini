@@ -115,6 +115,7 @@ class Player:
         move_and_build_request.build()
         game.increment_turn_counter()
         game.change_player()
+            
         
 class HumanPlayer(Player):
     def __init__(self, colour, board):
@@ -130,6 +131,23 @@ class HeuristicPlayer(Player):
     def __init__(self, colour, board):
         super().__init__(colour, board)
         self._strategy_type = Context(HeuristicStrategy(self._board, self._workers))
+    
+    def height_score(self):
+        return self._workers[0].cell.height + self._workers[1].cell.height
+    
+    def center_score(self):
+        center_score = 0
+        for worker in self._workers:
+            row, col = worker.cell.pos()
+            if (row, col) == (2, 2):
+                center_score += 2
+            elif 1 <= row <= 3 and 1 <= col <= 3:
+                center_score += 1
+        return center_score
+    
+    def distance_score(self):
+        pass
+
 
 
 class PlayerFactory():
