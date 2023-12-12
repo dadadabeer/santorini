@@ -22,6 +22,7 @@ class Santorini:
         while not self._state.game_state_end_check():
             print(self._state)
             self._state._cur_player.player_move(self._state)
+        print(self._state)
         print(self._state.winner + " has won")
 
 

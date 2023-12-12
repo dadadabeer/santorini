@@ -1,4 +1,4 @@
-from strategy import HumanStrategy, Context
+from strategy import HumanStrategy, Context, RandomStrategy
 
 DIRECTIONS = {
     'n': (-1, 0),
@@ -82,6 +82,14 @@ class Worker:
                 valid_moves.append(dir)
         return valid_moves
 
+    def valid_builds(self, moveto):
+        all_directions = DIRECTIONS.keys()
+        valid_builds = []
+        for dir in all_directions:
+            if self.validate_build(moveto, dir):
+                valid_builds.append(dir)
+        return valid_builds
+        
     
     def __str__(self):
         """Return the string representation of the worker."""
@@ -103,7 +111,7 @@ class Player:
 
     def player_move(self, game):
         """Determined by the game state and the strategy."""
-        move_and_build_request = Context(HumanStrategy(self._board, self._workers)).context_interface()
+        move_and_build_request = Context(RandomStrategy(self._board, self._workers)).context_interface()
         move_and_build_request.move()
         move_and_build_request.build()
         game.increment_turn_counter()

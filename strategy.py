@@ -1,5 +1,6 @@
 from board import Board
 import abc
+import random
 DIRECTIONS = {
     'n': (-1, 0),
     'ne': (-1, 1),
@@ -102,6 +103,51 @@ class HumanStrategy(Strategy):
         selected_move = self.choose_move_direction()
         selected_dir = self.choose_build_direction(selected_move)
         return MoveandBuild(self._board,selected_worker , selected_move, selected_dir)
+    
+class RandomStrategy(Strategy):
+    "Strategy for a random player"
+    def __init__(self, board, workers):
+        super().__init__(board, workers)
+
+    def random_worker(self):
+        """Ask the user to choose one worker from the two."""
+        colour_map = {
+            "white": ("A", "B"),
+            "blue": ("Y", "Z")
+        }
+        colour_category = self._workers[0].colour
+        possible_workers = colour_map[colour_category]
+        choice_of_worker = random.choice(possible_workers)
+
+        if choice_of_worker == colour_map[colour_category][0]:
+            self._active_worker = self._workers[0]
+        else:
+            self._active_worker = self._workers[1]
+
+        if self._active_worker.valid_moves() == []:
+                print("That worker cannot move")
+                self.random_worker()
+
+        return self._active_worker
+
+    def random_move_direction(self):
+        """Ask the user to choose a direction to move to."""
+        random_move = random.choice(self._active_worker.valid_moves())
+        return random_move
+
+
+    def random_build_direction(self, random_move):
+        """Ask the user to choose a direction to build at."""
+        random_build = random.choice(self._active_worker.valid_builds(random_move))
+        return random_build
+
+
+    def player_makes_move(self):
+        random_worker = self.random_worker()
+        random_move = self.random_move_direction()
+        random_dir = self.random_build_direction(random_move)
+        return MoveandBuild(self._board,random_worker , random_move, random_dir)
+
 
 
 
