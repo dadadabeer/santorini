@@ -29,6 +29,9 @@ class Game:
     
     def increment_turn_counter(self):
         self._turn_counter += 1
+    
+    def set_current_turn(self, turn_count):
+        self._current_turn = turn_count
 
     def change_player(self):
         if self._turn_counter % 2 == 0:

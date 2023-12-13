@@ -37,6 +37,7 @@ class Santorini:
                 prev_state = self._caretaker.undo()
                 if prev_state != None:
                     self._state = prev_state
+                    self._state.set_current_turn(prev_state.turn_counter)
             elif chooseMove == "redo":
                 next_state = self._caretaker.redo()
                 if next_state is not None:
