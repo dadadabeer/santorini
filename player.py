@@ -11,7 +11,6 @@ DIRECTIONS = {
     'w': (0, -1)
 }
 
-
 class Worker:
     def __init__(self, alpha, colour, cell, board):
         """Initialize a worker."""
@@ -40,18 +39,18 @@ class Worker:
         """Validate the move to the given cell."""
         delta_row, delta_col = DIRECTIONS[to]
         new_row, new_col = self._cell._row + delta_row, self._cell._col + delta_col
-        # Check if the new cell is on the board
+        
         if not (0 <= new_row < 5 and 0 <= new_col < 5):
             return False
-        # Check if the new cell is occupied
+        
         if self._board.get_cell(new_row, new_col).worker is not None:
             return False
-        # Check if the new cell is too high
+        
         curr_floors = self._cell.height
         new_floors = self._board.get_cell(new_row, new_col).height
         if new_floors - curr_floors > 1:
             return False
-        # Check if the new cell is inaccesible
+
         if self._board.get_cell(new_row, new_col).height == 4:
             return False
         return True
@@ -61,19 +60,20 @@ class Worker:
         delta_row_move, delta_col_move = DIRECTIONS[moveto]
         delta_row_build, delta_col_build = DIRECTIONS[buildto]
         new_row, new_col = self._cell._row + delta_row_move + delta_row_build, self._cell._col + delta_col_move + delta_col_build
-        # Check if the new cell is on the board
+
         if not (0 <= new_row < 5 and 0 <= new_col < 5):
             return False
-        # Check if the new cell is occupied
+
         if self._board.get_cell(new_row, new_col).worker is not None:
             if (new_row, new_col) != self._cell.pos():
                 return False
-        # Check if the new cell is too high
+
         if self._board.get_cell(new_row, new_col).height == 4:
             return False
         return True
     
     def valid_moves(self):
+        """Return a list of valid moves for the worker."""
         all_directions = DIRECTIONS.keys()
         valid_moves = []
         for dir in all_directions:
@@ -82,6 +82,7 @@ class Worker:
         return valid_moves
 
     def valid_builds(self, moveto):
+        """Return a list of valid builds for the worker given a move direction."""
         all_directions = DIRECTIONS.keys()
         valid_builds = []
         for dir in all_directions:
@@ -97,10 +98,10 @@ class Worker:
     
 
 class Player:
-    def __init__(self, colour, board):
+    def __init__(self, board, colour):
         """Initialize a player."""
-        self._colour = colour # either white or blue
         self._board = board
+        self._colour = colour
         self._workers  = None, None
         self._strategy_type = None
         if self._colour == "white":
@@ -142,12 +143,12 @@ class Player:
             row1, col1 = cell1.pos()
             row2, col2 = cell2.pos()
             return max(abs(row1 - row2), abs(col1 - col2))
-        # make a getter for workers
+
         player1, player2 = players[0], players[1]
-        worker_A_loc = player1._workers[0].cell
-        worker_B_loc = player1._workers[1].cell
-        worker_Y_loc = player2._workers[0].cell
-        worker_Z_loc = player2._workers[1].cell
+        worker_A_loc = player1.workers[0].cell
+        worker_B_loc = player1.workers[1].cell
+        worker_Y_loc = player2.workers[0].cell
+        worker_Z_loc = player2.workers[1].cell
 
         Z_to_A = chebyshev_distance(worker_Z_loc, worker_A_loc)
         Y_to_A = chebyshev_distance(worker_Y_loc, worker_A_loc)
@@ -166,25 +167,25 @@ class Player:
             
         
 class HumanPlayer(Player):
-    def __init__(self, colour, board):
-        super().__init__(colour, board)
+    def __init__(self, board, colour):
+        super().__init__(board, colour)
         self._strategy_type = Context(HumanStrategy(self._board, self._workers))
 
 class RandomPlayer(Player):
-    def __init__(self, colour, board):
-        super().__init__(colour, board)
+    def __init__(self, board, colour):
+        super().__init__(board, colour)
         self._strategy_type = Context(RandomStrategy(self._board, self._workers))
 
 class HeuristicPlayer(Player):
-    def __init__(self, colour, board):
-        super().__init__(colour, board)
+    def __init__(self, board, colour):
+        super().__init__(board, colour)
         self._strategy_type = Context(HeuristicStrategy(self._board, self._workers))
     
-class Factory():
-    def create_player(self, type_of, colour, board):
-        if type_of == "human":
-            return HumanPlayer(colour, board)
-        elif type_of == "random":
-            return RandomPlayer(colour, board)
-        elif type_of == "heuristic":
-            return HeuristicPlayer(colour, board)
+class FactoryofPlayers():
+    def initiate_player(self, board, colour, player_type):
+        if player_type == "human":
+            return HumanPlayer(board, colour)
+        if player_type == "random":
+            return RandomPlayer(board, colour)
+        if player_type == "heuristic":
+            return HeuristicPlayer(board, colour)

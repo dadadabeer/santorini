@@ -1,6 +1,4 @@
 
-# COMMAND PATTERN
-
 DIRECTIONS = {
     'n': (-1, 0),
     'ne': (-1, 1),
@@ -12,7 +10,6 @@ DIRECTIONS = {
     'w': (0, -1)
 }
 
-# can break the MoveAndBuild class into Command Interface, Concrete Command Class, Receiver, Invoker
 class MoveandBuild:
     def __init__(self, board, selectedWorker, directionMove, directionBuild):
         self._board = board

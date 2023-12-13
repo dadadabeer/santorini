@@ -35,7 +35,6 @@ class Cell:
         worker_repr = self._worker if self._worker else ' '
         return f"{self._height}{worker_repr}"
 
-
 class Board:
     """Board class for Santorini game."""
     def __init__(self):

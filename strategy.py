@@ -2,6 +2,7 @@ from board import Board
 import abc
 import random
 from command import MoveandBuild
+
 DIRECTIONS = {
     'n': (-1, 0),
     'ne': (-1, 1),

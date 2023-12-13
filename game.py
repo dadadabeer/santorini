@@ -1,16 +1,3 @@
-from board import Board
-from player import Worker, Player
-from strategy import HumanStrategy, MoveandBuild
-DIRECTIONS = {
-    'n': (-1, 0),
-    'ne': (-1, 1),
-    'nw': (-1, -1),
-    's': (1, 0),
-    'se': (1, 1),
-    'sw': (1, -1),
-    'e': (0, 1),
-    'w': (0, -1)
-}
 class Game:
     def __init__(self, board, players ):
         self._board = board
