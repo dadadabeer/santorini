@@ -1,6 +1,5 @@
 from board import Board
-from player import Player, HumanPlayer, RandomPlayer, PlayerFactory
-from strategy import HumanStrategy
+from player import Factory
 from game import Game
 from sys import argv 
 from UndoRedo import Caretaker
@@ -15,24 +14,23 @@ class Santorini:
         """Initialize the game."""
         self._board = Board()
         self._players = []
-        self._players.append(PlayerFactory().create_player(white_type, "white", self._board))
-        self._players.append(PlayerFactory().create_player(blue_type, "blue", self._board))
+        self._players.append(Factory().create_player(white_type, "white", self._board))
+        self._players.append(Factory().create_player(blue_type, "blue", self._board))
         self._state = Game(self._board, self._players)
         self._undo_redo = undo_redo
-        self._display = display
+        self._display = True if display == "on" else False
         self._caretaker = Caretaker(self._state)
 
     def __call__(self):
-        display = True if self._display == "on" else False
         while not self._state.game_state_end_check():
-            print(self._state.current_game_state(display))
+            print(self._state.current_game_state(self._display))
             if self._undo_redo == "on":
                 chooseMove = input("undo, redo, or next\n") 
             else:
                 chooseMove = "next"
 
             if chooseMove == "next":
-                self._state._cur_player.player_move(self._state)
+                self._state._cur_player.player_move(self._state, self._display)
                 self._caretaker.save(self._state)
                 
             elif chooseMove == "undo":
@@ -46,7 +44,7 @@ class Santorini:
             else:
                 continue
             
-        print(self._state.current_game_state(display))
+        print(self._state.current_game_state(self._display))
         print(self._state.winner + " has won")
 
 
@@ -70,10 +68,10 @@ if __name__ == '__main__':
 
     newGame = Santorini(white_type, blue_type, undo_redo, display)
     newGame()
-    # again = input("Play again?\n")
-    again = "yes"
+    again = input("Play again?\n")
+    # again = "yes"
     while again == "yes":
         newGame = Santorini(white_type, blue_type, undo_redo, display)
         newGame()
-        # again = input("Play again?\n")
-        again = "yes"
+        again = input("Play again?\n")
+        # again = "yes"

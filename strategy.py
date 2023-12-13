@@ -1,6 +1,7 @@
 from board import Board
 import abc
 import random
+from command import MoveandBuild
 DIRECTIONS = {
     'n': (-1, 0),
     'ne': (-1, 1),
@@ -224,6 +225,7 @@ class HeuristicStrategy(Strategy):
         possible_moves = []
         for worker in self._workers:
             valid_moves = worker.valid_moves()
+            print("Valid moves for the worker ", worker.alpha, " are ", valid_moves)
             for dir in valid_moves:
                 move_score = c1 * self.height_score_if_move(worker, dir) + c2 * self.center_score_if_move(worker, dir) + c3 * self.distance_score_if_move(worker, dir, game)
                 possible_moves.append((move_score, worker, dir))
@@ -233,8 +235,9 @@ class HeuristicStrategy(Strategy):
         for move in possible_moves:
             if move[0] == possible_moves[0][0]:
                 ties.append(move)
-        self._active_worker = random.choice(ties)[1]
-        return random.choice(ties)[2]
+        random_choice = random.choice(ties)
+        self._active_worker = random_choice[1]
+        return random_choice[2]
             
 
     def heuristic_build_direction(self, heuristic_move):
@@ -246,36 +249,3 @@ class HeuristicStrategy(Strategy):
         heuristic_dir = self.heuristic_build_direction(heuristic_move)
         return MoveandBuild(self._board, self._active_worker, heuristic_move, heuristic_dir)
 
-
-# COMMAND PATTERN
-# can break the MoveAndBuild class into Command Interface, Concrete Command Class, Receiver, Invoker
-class MoveandBuild:
-    def __init__(self, board : Board, selectedWorker, directionMove, directionBuild):
-        self._board = board
-        self._active_worker = selectedWorker
-        self._move_direction = directionMove
-        self._build_direction = directionBuild
-        self._move_cell = None
-        self._build_cell = None
-    
-    def move(self):
-        """Moves the worker to a new position on the board."""
-        currPos = self._active_worker.cell.pos()
-        print("current pos is", currPos)
-        delta_row, delta_col = DIRECTIONS.get(self._move_direction)
-        print("wanting to move in", self._move_direction)
-        newPos = delta_row + currPos[0], delta_col + currPos[1]
-        print("new pos is", newPos)
-        self._active_worker.cell.worker = None
-        self._move_cell = self._board.get_cell(newPos[0], newPos[1])
-        self._move_cell.worker = self._active_worker
-        self._active_worker.cell = self._move_cell
-    
-    def build(self):
-        """Builds a floor on the corresponding cell."""
-        delta_row, delta_col = DIRECTIONS.get(self._build_direction)
-        newPos = delta_row + self._move_cell.pos()[0], delta_col + self._move_cell.pos()[1]
-        self._build_cell = self._board.get_cell(newPos[0], newPos[1])
-        self._build_cell.increase_height()
-        print(self._active_worker.alpha + "," + self._move_direction + "," + self._build_direction)
-        

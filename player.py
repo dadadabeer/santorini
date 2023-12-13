@@ -108,11 +108,15 @@ class Player:
         elif self._colour ==  "blue":
             self._workers = Worker("Y", "blue", self._board.get_cell(1,1), self._board), Worker("Z", "blue", self._board.get_cell(3,3), self._board)
 
-    def player_move(self, game):
+    def player_move(self, game, display):
         """Determined by the game state and the strategy."""
         move_and_build_request = self._strategy_type.context_interface(game)
         move_and_build_request.move()
         move_and_build_request.build()
+        if display:
+            print(" " + self.display_score(game))
+        else:
+            print()
         game.increment_turn_counter()
         game.change_player()
 
@@ -176,48 +180,7 @@ class HeuristicPlayer(Player):
         super().__init__(colour, board)
         self._strategy_type = Context(HeuristicStrategy(self._board, self._workers))
     
-    # def height_score(self):
-    #     return self._workers[0].cell.height + self._workers[1].cell.height
-    
-    # def center_score(self):
-    #     center_score = 0
-    #     for worker in self._workers:
-    #         row, col = worker.cell.pos()
-    #         if (row, col) == (2, 2):
-    #             center_score += 2
-    #         elif 1 <= row <= 3 and 1 <= col <= 3:
-    #             center_score += 1
-    #     return center_score
-    
-    # def distance_score(self, players):
-    #     def chebyshev_distance(cell1, cell2):
-    #         row1, col1 = cell1.pos()
-    #         row2, col2 = cell2.pos()
-    #         return max(abs(row1 - row2), abs(col1 - col2))
-    #     # make a getter for workers
-    #     player1, player2 = players[0], players[1]
-    #     worker_A_loc = player1._workers[0].cell
-    #     worker_B_loc = player1._workers[1].cell
-    #     worker_Y_loc = player2._workers[0].cell
-    #     worker_Z_loc = player2._workers[1].cell
-
-    #     Z_to_A = chebyshev_distance(worker_Z_loc, worker_A_loc)
-    #     Y_to_A = chebyshev_distance(worker_Y_loc, worker_A_loc)
-    #     Z_to_B = chebyshev_distance(worker_Z_loc, worker_B_loc)
-    #     Y_to_B = chebyshev_distance(worker_Y_loc, worker_B_loc)
-
-    #     for_blue = min(Z_to_A, Y_to_A) + min(Z_to_B, Y_to_B)
-    #     for_white = min(Z_to_A, Z_to_B) + min(Y_to_A, Y_to_B)
-
-    #     if self._colour == "white":
-    #         return 8 - for_white
-    #     return 8 - for_blue
-    
-    # def display_score(self, game):
-    #     return f"({self.height_score()}, {self.center_score()}, {self.distance_score(game.players)})"
-        
-
-class PlayerFactory():
+class Factory():
     def create_player(self, type_of, colour, board):
         if type_of == "human":
             return HumanPlayer(colour, board)

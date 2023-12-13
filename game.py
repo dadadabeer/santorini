@@ -37,9 +37,8 @@ class Game:
             self._cur_player = self._players[0]
 
     def game_state_end_check(self):
-        # make a getter for workers later
         for player in self._players:
-            fs_worker, snd_worker = player._workers
+            fs_worker, snd_worker = player.workers
             if fs_worker.cell.height == 3 or snd_worker.cell.height == 3:
                 self.winner = fs_worker.colour
                 return True
@@ -50,7 +49,6 @@ class Game:
     
     def current_game_state(self, withScores=False):
         letters = "AB" if self._cur_player._colour == "white" else "YZ"
-        additional_details = "" if not withScores else self._cur_player.display_score(self)
+        additional_details = "" if not withScores else ", " + self._cur_player.display_score(self)
         details = "Turn: " + str(self._turn_counter) + ", " + self._cur_player._colour + " (" + letters + ")" + additional_details
         return str(self._board) + details
-
