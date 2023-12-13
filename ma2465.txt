@@ -1,0 +1,9 @@
+Working on this assignment has been an enlightening experience, significantly enhancing my 
+understanding of various design patterns. Implementing the game using patterns like Factory, 
+Strategy, Command, and Memento has not only deepened my grasp of these concepts but also highlighted
+ their practical applications in developing complex software systems.
+
+Pair programming, in particular, proved to be an invaluable approach. 
+It allowed for real-time collaboration and idea exchange, leading to more creative
+ solutions and efficient problem-solving. The synergy of working in a pair also helped 
+ in catching and fixing errors more promptly, ensuring a robust and well-thought-out design
