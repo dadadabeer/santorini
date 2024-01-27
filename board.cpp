@@ -18,11 +18,11 @@ private:
     int _row;
     int _col;
     int _height;
-    std::string _worker; //change this to a worker object
+    Worker _worker;
 
 public:
     // Constructor
-    Cell(int row, int col) : _row(row), _col(col), _height(0), _worker("") {}
+    Cell(int row, int col) : _row(row), _col(col), _height(0), _worker(NULL) {}
 
     // Note: the code from here until line 46 is for learning purposes only (Move Consytructor and Move Assignment Operator)
     // Another Note: If we define move contsructor, we should also define copy constructor, otherwise the comiler deletes the implicit one.
@@ -50,9 +50,10 @@ public:
     int getRow() const { return _row; }
     int getCol() const { return _col; }
     int getHeight() const { return _height; }
+    const Worker& getWorker() const { return _worker; }
 
     // Setters
-    void setWorker(const std::string& worker) { _worker = worker; }
+    void setWorker(const Worker& worker) { _worker = worker; }
     
     void increaseHeight() { _height < 4 ? _height++ : _height = 4; };
 
@@ -112,8 +113,6 @@ int main() {
     std::cout << board << std::endl;
     return 0;
 }
-
-
 
 
 /** 
